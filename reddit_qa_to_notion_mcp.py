@@ -61,7 +61,7 @@ class RedditPost(BaseModel):
     created_utc: int
     num_comments: int
     permalink: str
-    comments: List[Dict[str, Any]]
+    comments: List[str]
 
 @mcp.tool()
 def get_top_subreddit_posts(subreddits: str, limit: int = 5, comment_limit: int = 5, time_filter: str = "week") -> List[Dict[str, Any]]:

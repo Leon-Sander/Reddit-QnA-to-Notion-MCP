@@ -28,7 +28,12 @@ USER_AGENT=your-app-name/1.0
 # Notion Integration
 NOTION_API_TOKEN=your-notion-integration-token
 NOTION_QA_DATABASE_ID=your-notion-database-id
+
+# Optional: Proxy for cloud deployments (required for Render, AWS, etc.)
+PROXY_URL=http://username:password@proxy-server:port
 ```
+
+**⚠️ Cloud Platform Note:** Reddit blocks most cloud provider IPs (AWS, Google Cloud, Render, etc.). You need a proxy service for reliable operation.
 
 ### 2. Reddit API Setup
 
@@ -36,6 +41,16 @@ NOTION_QA_DATABASE_ID=your-notion-database-id
 2. **Create a new app** (script type)
 3. **Copy Client ID and Secret** to your `.env`
 4. **Set User Agent** to something descriptive like `MyBot/1.0`
+
+### 🆓 Free Proxy Setup (Webshare)
+
+**For cloud deployments (Render, Railway, AWS, etc.):**
+
+1. **Sign up at Webshare:** https://www.webshare.io/
+2. **Get 10 free proxies** (no credit card required)
+3. **Find your proxy details** in their dashboard
+4. **Your webshare proxyurl:** `http://username:password@proxy-endpoint:port`
+5. **Add to your `.env`:** `HTTP_PROXY=your-webshare-proxy-url` and `HTTPS_PROXY=your-webshare-proxy-url`
 
 ### 3. Notion Database Setup
 
