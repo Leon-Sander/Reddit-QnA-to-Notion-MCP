@@ -77,27 +77,45 @@ def get_top_subreddit_posts(subreddits: str, limit: int = 5, comment_limit: int 
     Returns:
         List[Dict[str, Any]]: List of dictionaries containing post information
     """
-    posts = []
-    subreddit = reddit.subreddit(subreddits)
-    
-    for post in subreddit.top(time_filter=time_filter, limit=limit):
-        post_data = RedditPost(
-            title=post.title,
-            body=post.selftext,
-            url=post.url,
-            created_utc=post.created_utc,
-            num_comments=post.num_comments,
-            permalink=f"https://reddit.com{post.permalink}",
-            comments=[]
-        )
+    try:
+        posts = []
+        subreddit = reddit.subreddit(subreddits)
         
-        post.comments.replace_more(limit=0)  # Remove MoreComments objects
-        for comment in post.comments.list()[:comment_limit]:  # Get top 5 comments
-            post_data.comments.append(comment.body)
+        logger.info(f"🔥 Getting top posts from r/{subreddits} (limit={limit}, time_filter={time_filter})")
+        
+        for post in subreddit.top(time_filter=time_filter, limit=limit):
+            post_data = RedditPost(
+                title=post.title,
+                body=post.selftext,
+                url=post.url,
+                created_utc=post.created_utc,
+                num_comments=post.num_comments,
+                permalink=f"https://reddit.com{post.permalink}",
+                comments=[]
+            )
             
-        posts.append(post_data.model_dump())
-    
-    return posts
+            post.comments.replace_more(limit=0)  # Remove MoreComments objects
+            for comment in post.comments.list()[:comment_limit]:  # Get top 5 comments
+                post_data.comments.append(comment.body)
+                
+            posts.append(post_data.model_dump())
+        
+        logger.info(f"✅ Successfully retrieved {len(posts)} top posts from r/{subreddits}")
+        return posts
+        
+    except Exception as e:
+        logger.error(f"❌ Reddit Top Posts Error: {str(e)}")
+        logger.error(f"❌ Error type: {type(e).__name__}")
+        logger.error(f"❌ Subreddits: {subreddits}")
+        logger.error(f"❌ Time filter: {time_filter}")
+        
+        # Try to get more details from the exception
+        if hasattr(e, 'response'):
+            logger.error(f"❌ HTTP Status: {e.response.status_code}")
+            logger.error(f"❌ Response headers: {dict(e.response.headers)}")
+            logger.error(f"❌ Response body: {e.response.text}")
+        
+        raise Exception(f"Top posts retrieval failed for r/{subreddits}: {str(e)} (type: {type(e).__name__})")
 
 @mcp.tool()
 def search_posts(subreddits: str, query: str, limit: int = 5, comment_limit: int = 5, sort: str = "relevance") -> List[Dict[str, Any]]:
@@ -114,27 +132,44 @@ def search_posts(subreddits: str, query: str, limit: int = 5, comment_limit: int
     Returns:
         List[Dict[str, Any]]: List of dictionaries containing post information
     """
-    posts = []
-    subreddit = reddit.subreddit(subreddits)
-    
-    for post in subreddit.search(query, sort=sort, limit=limit):
-        post_data = RedditPost(
-            title=post.title,
-            body=post.selftext,
-            url=post.url,
-            created_utc=post.created_utc,
-            num_comments=post.num_comments,
-            permalink=f"https://reddit.com{post.permalink}",
-            comments=[]
-        )
+    try:
+        posts = []
+        subreddit = reddit.subreddit(subreddits)
         
-        post.comments.replace_more(limit=0)
-        for comment in post.comments.list()[:comment_limit]:
-            post_data.comments.append(comment.body)
+        logger.info(f"🔍 Searching r/{subreddits} for: '{query}' (limit={limit}, sort={sort})")
+        
+        for post in subreddit.search(query, sort=sort, limit=limit):
+            post_data = RedditPost(
+                title=post.title,
+                body=post.selftext,
+                url=post.url,
+                created_utc=post.created_utc,
+                num_comments=post.num_comments,
+                permalink=f"https://reddit.com{post.permalink}",
+                comments=[]
+            )
             
-        posts.append(post_data.model_dump())
-    
-    return posts
+            post.comments.replace_more(limit=0)
+            for comment in post.comments.list()[:comment_limit]:
+                post_data.comments.append(comment.body)
+                
+            posts.append(post_data.model_dump())
+        
+        logger.info(f"✅ Successfully found {len(posts)} posts in r/{subreddits}")
+        return posts
+        
+    except Exception as e:
+        logger.error(f"❌ Reddit Subreddit Search Error: {str(e)}")
+        logger.error(f"❌ Error type: {type(e).__name__}")
+        logger.error(f"❌ Subreddits: {subreddits}")
+        
+        # Try to get more details from the exception
+        if hasattr(e, 'response'):
+            logger.error(f"❌ HTTP Status: {e.response.status_code}")
+            logger.error(f"❌ Response headers: {dict(e.response.headers)}")
+            logger.error(f"❌ Response body: {e.response.text}")
+        
+        raise Exception(f"Subreddit search failed for r/{subreddits}: {str(e)} (type: {type(e).__name__})")
 
 @mcp.tool()
 def search_reddit(query: str, limit: int = 5, comment_limit: int = 5, sort: str = "relevance") -> List[Dict[str, Any]]:
@@ -150,28 +185,48 @@ def search_reddit(query: str, limit: int = 5, comment_limit: int = 5, sort: str 
     Returns:
         List[Dict[str, Any]]: List of dictionaries containing post information
     """
-    posts = []
-    # Use "all" to search across all subreddits
-    all_subreddits = reddit.subreddit("all")
-    
-    for post in all_subreddits.search(query, sort=sort, limit=limit):
-        post_data = RedditPost(
-            title=post.title,
-            body=post.selftext,
-            url=post.url,
-            created_utc=post.created_utc,
-            num_comments=post.num_comments,
-            permalink=f"https://reddit.com{post.permalink}",
-            comments=[]
-        )
+    try:
+        posts = []
+        # Use "all" to search across all subreddits
+        all_subreddits = reddit.subreddit("all")
         
-        post.comments.replace_more(limit=0)
-        for comment in post.comments.list()[:comment_limit]:
-            post_data.comments.append(comment.body)
+        logger.info(f"🔍 Searching Reddit for: '{query}' (limit={limit}, sort={sort})")
+        
+        for post in all_subreddits.search(query, sort=sort, limit=limit):
+            post_data = RedditPost(
+                title=post.title,
+                body=post.selftext,
+                url=post.url,
+                created_utc=post.created_utc,
+                num_comments=post.num_comments,
+                permalink=f"https://reddit.com{post.permalink}",
+                comments=[]
+            )
             
-        posts.append(post_data.model_dump())
-    
-    return posts
+            post.comments.replace_more(limit=0)
+            for comment in post.comments.list()[:comment_limit]:
+                post_data.comments.append(comment.body)
+                
+            posts.append(post_data.model_dump())
+        
+        logger.info(f"✅ Successfully found {len(posts)} Reddit posts")
+        return posts
+        
+    except Exception as e:
+        logger.error(f"❌ Reddit API Error: {str(e)}")
+        logger.error(f"❌ Error type: {type(e).__name__}")
+        
+        # Try to get more details from the exception
+        if hasattr(e, 'response'):
+            logger.error(f"❌ HTTP Status: {e.response.status_code}")
+            logger.error(f"❌ Response headers: {dict(e.response.headers)}")
+            logger.error(f"❌ Response body: {e.response.text}")
+        
+        # Log Reddit instance info
+        logger.error(f"❌ Reddit read_only: {reddit.read_only}")
+        logger.error(f"❌ Reddit config: client_id exists={bool(reddit.config.client_id)}")
+        
+        raise Exception(f"Reddit search failed: {str(e)} (type: {type(e).__name__})")
 
 @mcp.tool()
 def save_reddit_qa_to_notion(
