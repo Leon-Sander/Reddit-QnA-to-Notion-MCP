@@ -105,17 +105,31 @@ def get_top_subreddit_posts(subreddits: str, limit: int = 5, comment_limit: int 
         
     except Exception as e:
         logger.error(f"❌ Reddit Top Posts Error: {str(e)}")
-        logger.error(f"❌ Error type: {type(e).__name__}")
-        logger.error(f"❌ Subreddits: {subreddits}")
-        logger.error(f"❌ Time filter: {time_filter}")
         
-        # Try to get more details from the exception
+        # Build detailed error info for the response
+        error_details = {
+            "error": str(e),
+            "error_type": type(e).__name__,
+            "subreddits": subreddits,
+            "time_filter": time_filter,
+            "reddit_read_only": reddit.read_only,
+            "client_id_exists": bool(reddit.config.client_id),
+        }
+        
+        # Try to get HTTP response details
         if hasattr(e, 'response'):
-            logger.error(f"❌ HTTP Status: {e.response.status_code}")
-            logger.error(f"❌ Response headers: {dict(e.response.headers)}")
-            logger.error(f"❌ Response body: {e.response.text}")
+            error_details.update({
+                "http_status": e.response.status_code,
+                "response_headers": dict(e.response.headers),
+                "response_body": e.response.text[:500]
+            })
         
-        raise Exception(f"Top posts retrieval failed for r/{subreddits}: {str(e)} (type: {type(e).__name__})")
+        # Return detailed error info instead of raising
+        return [{
+            "error_details": error_details,
+            "message": f"Top posts retrieval failed for r/{subreddits}: {str(e)}",
+            "debug_info": "Check error_details for Reddit API response information"
+        }]
 
 @mcp.tool()
 def search_posts(subreddits: str, query: str, limit: int = 5, comment_limit: int = 5, sort: str = "relevance") -> List[Dict[str, Any]]:
@@ -160,16 +174,30 @@ def search_posts(subreddits: str, query: str, limit: int = 5, comment_limit: int
         
     except Exception as e:
         logger.error(f"❌ Reddit Subreddit Search Error: {str(e)}")
-        logger.error(f"❌ Error type: {type(e).__name__}")
-        logger.error(f"❌ Subreddits: {subreddits}")
         
-        # Try to get more details from the exception
+        # Build detailed error info for the response
+        error_details = {
+            "error": str(e),
+            "error_type": type(e).__name__,
+            "subreddits": subreddits,
+            "reddit_read_only": reddit.read_only,
+            "client_id_exists": bool(reddit.config.client_id),
+        }
+        
+        # Try to get HTTP response details
         if hasattr(e, 'response'):
-            logger.error(f"❌ HTTP Status: {e.response.status_code}")
-            logger.error(f"❌ Response headers: {dict(e.response.headers)}")
-            logger.error(f"❌ Response body: {e.response.text}")
+            error_details.update({
+                "http_status": e.response.status_code,
+                "response_headers": dict(e.response.headers),
+                "response_body": e.response.text[:500]
+            })
         
-        raise Exception(f"Subreddit search failed for r/{subreddits}: {str(e)} (type: {type(e).__name__})")
+        # Return detailed error info instead of raising
+        return [{
+            "error_details": error_details,
+            "message": f"Subreddit search failed for r/{subreddits}: {str(e)}",
+            "debug_info": "Check error_details for Reddit API response information"
+        }]
 
 @mcp.tool()
 def search_reddit(query: str, limit: int = 5, comment_limit: int = 5, sort: str = "relevance") -> List[Dict[str, Any]]:
@@ -214,19 +242,29 @@ def search_reddit(query: str, limit: int = 5, comment_limit: int = 5, sort: str 
         
     except Exception as e:
         logger.error(f"❌ Reddit API Error: {str(e)}")
-        logger.error(f"❌ Error type: {type(e).__name__}")
         
-        # Try to get more details from the exception
+        # Build detailed error info for the response
+        error_details = {
+            "error": str(e),
+            "error_type": type(e).__name__,
+            "reddit_read_only": reddit.read_only,
+            "client_id_exists": bool(reddit.config.client_id),
+        }
+        
+        # Try to get HTTP response details
         if hasattr(e, 'response'):
-            logger.error(f"❌ HTTP Status: {e.response.status_code}")
-            logger.error(f"❌ Response headers: {dict(e.response.headers)}")
-            logger.error(f"❌ Response body: {e.response.text}")
+            error_details.update({
+                "http_status": e.response.status_code,
+                "response_headers": dict(e.response.headers),
+                "response_body": e.response.text[:500]  # Limit response body length
+            })
         
-        # Log Reddit instance info
-        logger.error(f"❌ Reddit read_only: {reddit.read_only}")
-        logger.error(f"❌ Reddit config: client_id exists={bool(reddit.config.client_id)}")
-        
-        raise Exception(f"Reddit search failed: {str(e)} (type: {type(e).__name__})")
+        # Return detailed error info instead of raising
+        return [{
+            "error_details": error_details,
+            "message": f"Reddit search failed: {str(e)}",
+            "debug_info": "Check error_details for Reddit API response information"
+        }]
 
 @mcp.tool()
 def save_reddit_qa_to_notion(
