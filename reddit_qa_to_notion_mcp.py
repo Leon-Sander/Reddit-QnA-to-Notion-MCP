@@ -365,8 +365,6 @@ def save_reddit_qa_to_notion(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Reddit Q&A to Notion MCP Server")
     parser.add_argument("--transport", choices=["stdio", "http"], default="stdio", help="Transport type")
-    parser.add_argument("--host", default="localhost", help="Host for HTTP transport")
-    parser.add_argument("--port", type=int, default=8000, help="Port for HTTP transport")
     
     args = parser.parse_args()
 
