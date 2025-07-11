@@ -369,7 +369,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.transport == "http":
-        logger.info(f"🚀 Starting HTTP server on {args.host}:{args.port}")
+        logger.info(f"🚀 Starting HTTP server on localhost:8000")
         logger.info("🔐 Authentication: Bearer token required")
         logger.info("📋 Required scopes: reddit:read, notion:write")
         logger.info("🛠️  Available tools: get_top_subreddit_posts, search_posts, search_reddit, save_reddit_qa_to_notion")
