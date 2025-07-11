@@ -30,7 +30,8 @@ NOTION_API_TOKEN=your-notion-integration-token
 NOTION_QA_DATABASE_ID=your-notion-database-id
 
 # Optional: Proxy for cloud deployments (required for Render, AWS, etc.)
-PROXY_URL=http://username:password@proxy-server:port
+HTTP_PROXY=http://username:password@proxy-server:port
+HTTPS_PROXY=http://username:password@proxy-server:port
 ```
 
 **⚠️ Cloud Platform Note:** Reddit blocks most cloud provider IPs (AWS, Google Cloud, Render, etc.). You need a proxy service for reliable operation.
